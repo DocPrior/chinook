@@ -1,0 +1,419 @@
+1.
+Artist.where(name: 'Queen')
+  Artist Load (1.0ms)  SELECT  "artists".* FROM "artists" WHERE "artists"."name" = $1 LIMIT $2  [["name", "Queen"], ["LIMIT", 11]]
+=> #<ActiveRecord::Relation [#<Artist id: 51, name: "Queen", created_at: "2006-01-08 22:57:01", updated_at: "2014-01-29 22:10:22">]>
+irb(main):017:0> Album.where(artist_id: 51)
+  Album Load (1.4ms)  SELECT  "albums".* FROM "albums" WHERE "albums"."artist_id" = $1 LIMIT $2  [["artist_id", 51], ["LIMIT", 11]]
+=> #<ActiveRecord::Relation [#<Album id: 36, artist_id: 51, title: "Greatest Hits II", created_at: "2008-01-30 14:00:12", updated_at: "2014-01-29 22:14:02">, #<Album id: 185, artist_id: 51, title: "Greatest Hits I", created_at: "2007-12-29 12:02:13", updated_at: "2014-01-29 22:14:02">, #<Album id: 186, artist_id: 51, title: "News Of The World", created_at: "2010-06-23 20:50:06", updated_at: "2014-01-29 22:14:02">]>
+
+2. irb(main):020:0> MediaType.where(name: 'Protected MPEG-4 video file')
+  MediaType Load (0.9ms)  SELECT  "media_types".* FROM "media_types" WHERE "media_types"."name" = $1 LIMIT $2  [["name", "Protected MPEG-4 video file"], ["LIMIT", 11]]
+=> #<ActiveRecord::Relation [#<MediaType id: 3, name: "Protected MPEG-4 video file", created_at: "2007-12-07 13:17:17", updated_at: "2014-01-29 22:14:22">]>
+irb(main):023:0> Track.where(media_type_id: 3).count
+   (3.1ms)  SELECT COUNT(*) FROM "tracks" WHERE "tracks"."media_type_id" = $1  [["media_type_id", 3]]
+=> 214
+
+3.irb(main):025:0> Genre.where(name: 'Hip Hop/Rap')
+  Genre Load (0.9ms)  SELECT  "genres".* FROM "genres" WHERE "genres"."name" = $1 LIMIT $2  [["name", "Hip Hop/Rap"], ["LIMIT", 11]]
+=> #<ActiveRecord::Relation [#<Genre id: 17, name: "Hip Hop/Rap", created_at: "2013-01-20 02:04:31", updated_at: "2014-01-29 22:14:08">]>
+
+4. irb(main):026:0> Track.where(genre_id: 17).count
+   (4.8ms)  SELECT COUNT(*) FROM "tracks" WHERE "tracks"."genre_id" = $1  [["genre_id", 17]]
+=> 35
+
+5.irb(main):029:0> Track.sum(:milliseconds)
+   (22.2ms)  SELECT SUM("tracks"."milliseconds") FROM "tracks"
+=> 1378575827
+
+6. irb(main):030:0> MediaType.where(name: 'MPEG audio file')
+  MediaType Load (1.0ms)  SELECT  "media_types".* FROM "media_types" WHERE "media_types"."name" = $1 LIMIT $2  [["name", "MPEG audio file"], ["LIMIT", 11]]
+=> #<ActiveRecord::Relation [#<MediaType id: 1, name: "MPEG audio file", created_at: "2006-11-24 08:21:33", updated_at: "2014-01-29 22:14:22">]>
+irb(main):031:0> Track.where(media_type_id: 1).maximum(:unit_price)
+   (6.1ms)  SELECT MAX("tracks"."unit_price") FROM "tracks" WHERE "tracks"."media_type_id" = $1  [["media_type_id", 1]]
+=> 0.99e0
+
+7.irb(main):036:0> Track.select(:name).where(unit_price: 0.99).limit(1)
+  Track Load (1.0ms)  SELECT  "tracks"."name" FROM "tracks" WHERE "tracks"."unit_price" = $1 LIMIT $2  [["unit_price", 0.99], ["LIMIT", 1]]
+=> #<ActiveRecord::Relation [#<Track id: nil, name: "Restless and Wild">]>
+
+8. Artist.order(created_at: :asc).limit(2)
+  Artist Load (0.3ms)  SELECT  "artists".* FROM "artists" ORDER BY "artists"."created_at" ASC LIMIT $1  [["LIMIT", 2]]
+=> [#<Artist:0x0055ae0198ffa8
+  id: 258,
+  name: "Les Arts Florissants & William Christie",
+  created_at: Fri, 13 Feb 2004 06:08:36 UTC +00:00,
+  updated_at: Wed, 29 Jan 2014 22:10:22 UTC +00:00>,
+ #<Artist:0x0055ae0198a468
+  id: 31,
+  name: "Baby Consuelo",
+  created_at: Mon, 16 Feb 2004 22:04:39 UTC +00:00,
+  updated_at: Wed, 29 Jan 2014 22:10:22 UTC +00:00>]
+
+9. [6] pry(main)> Genre.where(name: 'Electronica/Dance')
+  Genre Load (1.1ms)  SELECT "genres".* FROM "genres" WHERE "genres"."name" = $1  [["name", "Electronica/Dance"]]
+=> [#<Genre:0x0055ae0179a5b8
+  id: 15,
+  name: "Electronica/Dance",
+  created_at: Sun, 25 May 2008 12:13:42 UTC +00:00,
+  updated_at: Wed, 29 Jan 2014 22:14:08 UTC +00:00>]
+[7] pry(main)>
+pry(main)> Track.where(genre_id: 15).order(unit_price: :desc).limit(1)
+  Track Load (1.0ms)  SELECT  "tracks".* FROM "tracks" WHERE "tracks"."genre_id" = $1 ORDER BY "tracks"."unit_price" DESC LIMIT $2  [["genre_id", 15], ["LIMIT", 1]]
+=> [#<Track:0x0055ae0154d5d0
+  id: 3319,
+  album_id: 259,
+  genre_id: 15,
+  media_type_id: 1,
+  name: "Instinto Colectivo",
+  composer: nil,
+  milliseconds: 300564,
+  bytes: 12024875,
+  unit_price: 0.99e0,
+  created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+  updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>]
+10.  MediaType.where(name: 'MPEG audio file')
+  MediaType Load (0.8ms)  SELECT "media_types".* FROM "media_types" WHERE "media_types"."name" = $1  [["name", "MPEG audio file"]]
+=> [#<MediaType:0x0055ae00b3bbc8
+  id: 1,
+  name: "MPEG audio file",
+  created_at: Fri, 24 Nov 2006 08:21:33 UTC +00:00,
+  updated_at: Wed, 29 Jan 2014 22:14:22 UTC +00:00>]
+  Track.where(media_type_id: 1, genre_id: 15)
+   Track Load (3.6ms)  SELECT "tracks".* FROM "tracks" WHERE "tracks"."media_type_id" = $1 AND "tracks"."genre_id" = $2  [["media_type_id", 1], ["genre_id", 15]]
+ => [#<Track:0x0055ae009e9450
+   id: 3319,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Instinto Colectivo",
+   composer: nil,
+   milliseconds: 300564,
+   bytes: 12024875,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e9018
+   id: 3320,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Chapa o Coco",
+   composer: nil,
+   milliseconds: 143830,
+   bytes: 5755478,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e8e38
+   id: 3321,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Prostituta",
+   composer: nil,
+   milliseconds: 359000,
+   bytes: 14362307,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e8ac8
+   id: 3322,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Eu So Queria Sumir",
+   composer: nil,
+   milliseconds: 269740,
+   bytes: 10791921,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e8730
+   id: 3323,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Tres Reis",
+   composer: nil,
+   milliseconds: 304143,
+   bytes: 12168015,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e8370
+   id: 3324,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Um Lugar ao Sol",
+   composer: nil,
+   milliseconds: 212323,
+   bytes: 8495217,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e8028
+   id: 3325,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Batalha Naval",
+   composer: nil,
+   milliseconds: 285727,
+   bytes: 11431382,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e3f78
+   id: 3327,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "O Misterio do Samba",
+   composer: nil,
+   milliseconds: 226142,
+   bytes: 9047970,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e3c08
+   id: 3328,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Armadura",
+   composer: nil,
+   milliseconds: 232881,
+   bytes: 9317533,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e3730
+   id: 3329,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Na Ladeira",
+   composer: nil,
+   milliseconds: 221570,
+   bytes: 8865099,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e32d0
+   id: 3330,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Carimbo",
+   composer: nil,
+   milliseconds: 328751,
+   bytes: 13152314,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e2df8
+   id: 3331,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Catimbo",
+   composer: nil,
+   milliseconds: 254484,
+   bytes: 10181692,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e2a38
+   id: 3333,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Chega no Suingue",
+   composer: nil,
+   milliseconds: 221805,
+   bytes: 8874509,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e2510
+   id: 3334,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Mun-Ra",
+   composer: nil,
+   milliseconds: 274651,
+   bytes: 10988338,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e2268
+   id: 3335,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Freestyle Love",
+   composer: nil,
+   milliseconds: 318484,
+   bytes: 12741680,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:04 UTC +00:00>,
+  #<Track:0x0055ae009e1f70
+   id: 1456,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Stillness In Time",
+   composer: "Toby Smith",
+   milliseconds: 257097,
+   bytes: 8644290,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:05 UTC +00:00>,
+  #<Track:0x0055ae009e1cc8
+   id: 1463,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Journey To Arnhemland",
+   composer: "Toby Smith/Wallis Buchanan",
+   milliseconds: 322455,
+   bytes: 10843832,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:05 UTC +00:00>,
+  #<Track:0x0055ae009e19a8
+   id: 1455,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Just Another Story",
+   composer: "Toby Smith",
+   milliseconds: 529684,
+   bytes: 17582818,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:14:59 UTC +00:00>,
+  #<Track:0x0055ae009e1728
+   id: 3326,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Todo o Carnaval tem seu Fim",
+   composer: nil,
+   milliseconds: 237426,
+   bytes: 9499371,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:06 UTC +00:00>,
+  #<Track:0x0055ae009e13b8
+   id: 3332,
+   album_id: 259,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Funk de Bamba",
+   composer: nil,
+   milliseconds: 237322,
+   bytes: 9495184,
+   unit_price: 0.99e0,
+   created_at: Mon, 27 Sep 2004 22:40:29 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:15:06 UTC +00:00>,
+  #<Track:0x0055ae009e1188
+   id: 1457,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Half The Man",
+   composer: "Toby Smith",
+   milliseconds: 289854,
+   bytes: 9577679,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:14:59 UTC +00:00>,
+  #<Track:0x0055ae009e0ee0
+   id: 1458,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Light Years",
+   composer: "Toby Smith",
+   milliseconds: 354560,
+   bytes: 11796244,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:14:59 UTC +00:00>,
+  #<Track:0x0055ae009e0af8
+   id: 1459,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Manifest Destiny",
+   composer: "Toby Smith",
+   milliseconds: 382197,
+   bytes: 12676962,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:14:59 UTC +00:00>,
+  #<Track:0x0055ae009e00d0
+   id: 1460,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "The Kids",
+   composer: "Toby Smith",
+   milliseconds: 309995,
+   bytes: 10334529,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:14:59 UTC +00:00>,
+  #<Track:0x0055ae009e0c10
+   id: 1461,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Mr. Moon",
+   composer: "Stuard Zender/Toby Smith",
+   milliseconds: 329534,
+   bytes: 11043559,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:14:59 UTC +00:00>,
+  #<Track:0x0055ae009e3b68
+   id: 1462,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Scam",
+   composer: "Stuart Zender",
+   milliseconds: 422321,
+   bytes: 14019705,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:14:59 UTC +00:00>,
+  #<Track:0x0055ae009dbbe8
+   id: 1464,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Morning Glory",
+   composer: "J. Kay/Jay Kay",
+   milliseconds: 384130,
+   bytes: 12777210,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:14:59 UTC +00:00>,
+  #<Track:0x0055ae009dbaa8
+   id: 1465,
+   album_id: 118,
+   genre_id: 15,
+   media_type_id: 1,
+   name: "Space Cowboy",
+   composer: "J. Kay/Jay Kay",
+   milliseconds: 385697,
+   bytes: 12906520,
+   unit_price: 0.99e0,
+   created_at: Thu, 01 May 2008 07:04:10 UTC +00:00,
+   updated_at: Wed, 29 Jan 2014 22:14:59 UTC +00:00>]
+ (END)
